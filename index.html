@@ -3,187 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>200+ Flags Battle Simulation</title>
+    <title>Flags Battle Royale - Live Sim</title>
     <style>
         body {
-            background-color: #0d1b2a;
+            background-color: #050b15;
             color: #fff;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
             margin: 0;
             padding: 10px;
+            overflow: hidden; /* যাতে বের হয়ে যাওয়া পতাকা স্ক্রলবার না আনে */
         }
-        h1 {
-            color: #00f5d4;
-            margin-bottom: 5px;
-            font-size: 24px;
+
+        /* Top Header Box */
+        .top-header {
+            background: #0a1930;
+            border: 2px solid #1a3a6b;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto 15px auto;
+            padding: 10px;
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
         }
-        #status {
+        .header-title {
+            color: #00d2ff;
+            font-weight: bold;
             font-size: 16px;
-            color: #ff9f1c;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
         }
-        .container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            align-items: flex-start;
+        .qualify-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
         }
-        .arena {
+        .qualify-table th, .qualify-table td {
+            text-align: left;
+            padding: 4px 8px;
+            border-bottom: 1px solid #1a3a6b;
+        }
+        .qualify-table tr:last-child td {
+            border-bottom: none;
+        }
+        .text-gold { color: #ffd700; }
+        .text-silver { color: #c0c0c0; }
+        .text-bronze { color: #cd7f32; }
+
+        /* Main Arena Container */
+        .arena-container {
+            position: relative;
             width: 500px;
             height: 500px;
-            border: 5px solid #48cae4;
+            margin: 0 auto;
+        }
+
+        /* Timer */
+        #timer {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff4757;
+            background: rgba(5, 11, 21, 0.8);
+            padding: 2px 10px;
+            border-radius: 5px;
+            z-index: 10;
+        }
+
+        /* The Circle Arena */
+        .arena {
+            width: 100%;
+            height: 100%;
+            border: 6px solid #1a3a6b;
             border-radius: 50%;
             position: relative;
-            background-color: #1b263b;
-            overflow: hidden;
-            box-shadow: 0 0 25px rgba(72, 202, 228, 0.5);
+            background: radial-gradient(circle, #0a1930 0%, #050b15 70%);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            overflow: visible; /* খুব জরুরি: পতাকাকে বৃত্তের বাইরে যেতে দেওয়ার জন্য */
+            z-index: 1;
         }
+
+        /* The Gap (ফাঁক) */
+        .gap {
+            position: absolute;
+            bottom: -15px; /* বৃত্তের বর্ডারের বাইরে */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px; /* গেটের সাইজ */
+            height: 10px;
+            background-color: #050b15; /* ব্যাকগ্রাউন্ডের রঙের সাথে মিলিয়ে দেওয়া */
+            z-index: 2;
+            /* ঐচ্ছিক: গেটটি একটু গ্লো করার জন্য */
+            box-shadow: 0 0 10px #00d2ff; 
+            border-radius: 5px;
+        }
+
+        /* Flag Elements */
         .flag-item {
             position: absolute;
             width: 30px;
             height: 20px;
-            font-size: 18px;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-        }
-        .scoreboard {
-            width: 280px;
-            background: #1b263b;
-            border: 2px solid #48cae4;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: left;
-            height: 500px;
-            overflow-y: auto;
-        }
-        .scoreboard h3 {
-            margin-top: 0;
-            color: #ffb703;
-            border-bottom: 1px solid #48cae4;
-            padding-bottom: 5px;
-            font-size: 16px;
-        }
-        .score-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 13px;
+            /* ফিজিক্সের জন্য ট্রানজিশন সরানো হয়েছে, মুভমেন্ট JS দ্বারা কন্ট্রোল হবে */
         }
     </style>
 </head>
 <body>
 
-    <h1>200+ FLAGS BATTLE SIMULATOR</h1>
-    <div id="status">Status: Battle in Progress (Auto-Looping)</div>
+    <!-- Top Header Box (Screenshot মত) -->
+    <div class="top-header">
+        <div class="header-title">🏁 বর্তমানে কোয়ালিফাইং রাউন্ড চলছে 🏁</div>
+        <table class="qualify-table" id="qualifyTable">
+            <!-- JavaScript দিয়ে ডাটা এখানে বসবে -->
+        </table>
+    </div>
 
-    <div class="container">
-        <!-- যুদ্ধের বৃত্ত বা এরিনা -->
-        <div class="arena" id="arena"></div>
-
-        <!-- লিডারবোর্ড বা বিজয়ী তালিকা -->
-        <div class="scoreboard">
-            <h3>🏆 Leaderboard (Wins)</h3>
-            <div id="scoreList"></div>
+    <div class="arena-container">
+        <!-- Timer -->
+        <div id="timer">55</div>
+        
+        <!-- The Battle Arena -->
+        <div class="arena" id="arena">
+            <!-- The Gap at the bottom -->
+            <div class="gap"></div>
         </div>
     </div>
 
     <script>
-        // ২০০+ দেশের পতাকা এবং নামের তালিকা
+        // --- ডাটাবেজ (২০০+ দেশ) ---
         const flagsData = [
-            { name: "Afghanistan", emoji: "🇦🇫" }, { name: "Albania", emoji: "🇦🇱" }, { name: "Algeria", emoji: "🇩🇿" },
-            { name: "Andorra", emoji: "🇦🇩" }, { name: "Angola", emoji: "🇦🇴" }, { name: "Antigua and Barbuda", emoji: "🇦🇬" },
-            { name: "Argentina", emoji: "🇦🇷" }, { name: "Armenia", emoji: "🇦🇲" }, { name: "Australia", emoji: "🇦🇺" },
-            { name: "Austria", emoji: "🇦🇹" }, { name: "Azerbaijan", emoji: "🇦🇿" }, { name: "Bahamas", emoji: "🇧🇸" },
-            { name: "Bahrain", emoji: "🇧🇭" }, { name: "Bangladesh", emoji: "🇧🇩" }, { name: "Barbados", emoji: "🇧🇧" },
-            { name: "Belarus", emoji: "🇧🇾" }, { name: "Belgium", emoji: "🇧🇪" }, { name: "Belize", emoji: "🇧🇿" },
-            { name: "Benin", emoji: "🇧🇯" }, { name: "Bhutan", emoji: "🇧🇹" }, { name: "Bolivia", emoji: "🇧🇴" },
-            { name: "Bosnia and Herzegovina", emoji: "🇧🇦" }, { name: "Botswana", emoji: "🇧🇼" }, { name: "Brazil", emoji: "🇧🇷" },
-            { name: "Brunei", emoji: "🇧🇳" }, { name: "Bulgaria", emoji: "🇧🇬" }, { name: "Burkina Faso", emoji: "🇧🇫" },
-            { name: "Burundi", emoji: "🇧🇮" }, { name: "Cabo Verde", emoji: "🇨🇻" }, { name: "Cambodia", emoji: "🇰🇭" },
-            { name: "Cameroon", emoji: "🇨🇲" }, { name: "Canada", emoji: "🇨🇦" }, { name: "Central African Republic", emoji: "🇨🇫" },
-            { name: "Chad", emoji: "🇹🇩" }, { name: "Chile", emoji: "🇨🇱" }, { name: "China", emoji: "🇨🇳" },
-            { name: "Colombia", emoji: "🇨🇴" }, { name: "Comoros", emoji: "🇰🇲" }, { name: "Congo", emoji: "🇨🇬" },
-            { name: "Costa Rica", emoji: "🇨🇷" }, { name: "Croatia", emoji: "🇭🇷" }, { name: "Cuba", emoji: "🇨🇺" },
-            { name: "Cyprus", emoji: "🇨🇾" }, { name: "Czech Republic", emoji: "🇨🇿" }, { name: "Denmark", emoji: "🇩🇰" },
-            { name: "Djibouti", emoji: "🇩🇯" }, { name: "Dominica", emoji: "🇩🇲" }, { name: "Dominican Republic", emoji: "🇩🇴" },
-            { name: "Ecuador", emoji: "🇪🇨" }, { name: "Egypt", emoji: "🇪🇬" }, { name: "El Salvador", emoji: "🇸🇻" },
-            { name: "Equatorial Guinea", emoji: "🇬🇶" }, { name: "Eritrea", emoji: "🇪🇷" }, { name: "Estonia", emoji: "🇪🇪" },
-            { name: "Eswatini", emoji: "🇸🇿" }, { name: "Ethiopia", emoji: "🇪🇹" }, { name: "Fiji", emoji: "🇫🇯" },
-            { name: "Finland", emoji: "🇫🇮" }, { name: "France", emoji: "🇫🇷" }, { name: "Gabon", emoji: "🇬🇦" },
-            { name: "Gambia", emoji: "🇬🇲" }, { name: "Georgia", emoji: "🇬🇪" }, { name: "Germany", emoji: "🇩🇪" },
-            { name: "Ghana", emoji: "🇬🇭" }, { name: "Greece", emoji: "🇬🇷" }, { name: "Grenada", emoji: "🇬🇩" },
-            { name: "Guatemala", emoji: "🇬🇹" }, { name: "Guinea", emoji: "🇬🇳" }, { name: "Guinea-Bissau", emoji: "🇬🇼" },
-            { name: "Guyana", emoji: "🇬🇾" }, { name: "Haiti", emoji: "🇭🇹" }, { name: "Honduras", emoji: "🇭🇳" },
-            { name: "Hungary", emoji: "🇭🇺" }, { name: "Iceland", emoji: "🇮🇸" }, { name: "India", emoji: "🇮🇳" },
-            { name: "Indonesia", emoji: "🇮🇩" }, { name: "Iran", emoji: "🇮🇷" }, { name: "Iraq", emoji: "🇮🇶" },
-            { name: "Ireland", emoji: "🇮🇪" }, { name: "Israel", emoji: "🇮🇱" }, { name: "Italy", emoji: "🇮🇹" },
-            { name: "Jamaica", emoji: "🇯🇲" }, { name: "Japan", emoji: "🇯🇵" }, { name: "Jordan", emoji: "🇯🇴" },
-            { name: "Kazakhstan", emoji: "🇰🇿" }, { name: "Kenya", emoji: "🇰🇪" }, { name: "Kiribati", emoji: "🇰🇮" },
-            { name: "North Korea", emoji: "🇰🇵" }, { name: "South Korea", emoji: "🇰🇷" }, { name: "Kuwait", emoji: "🇰🇼" },
-            { name: "Kyrgyzstan", emoji: "🇰🇬" }, { name: "Laos", emoji: "🇱🇦" }, { name: "Latvia", emoji: "🇱🇻" },
-            { name: "Lebanon", emoji: "🇱🇧" }, { name: "Lesotho", emoji: "🇱🇸" }, { name: "Liberia", emoji: "🇱🇷" },
-            { name: "Libya", emoji: "🇱🇾" }, { name: "Liechtenstein", emoji: "🇱🇮" }, { name: "Lithuania", emoji: "🇱🇹" },
-            { name: "Luxembourg", emoji: "🇱🇺" }, { name: "Madagascar", emoji: "🇲🇬" }, { name: "Malawi", emoji: "🇲🇼" },
-            { name: "Malaysia", emoji: "🇲🇾" }, { name: "Maldives", emoji: "🇲🇻" }, { name: "Mali", emoji: "🇲🇱" },
-            { name: "Malta", emoji: "🇲🇹" }, { name: "Marshall Islands", emoji: "🇲🇭" }, { name: "Mauritania", emoji: "🇲🇷" },
-            { name: "Mauritius", emoji: "🇲🇺" }, { name: "Mexico", emoji: "🇲🇽" }, { name: "Micronesia", emoji: "🇫🇲" },
-            { name: "Moldova", emoji: "🇲🇩" }, { name: "Monaco", emoji: "🇲🇨" }, { name: "Mongolia", emoji: "🇲🇳" },
-            { name: "Montenegro", emoji: "🇲🇪" }, { name: "Morocco", emoji: "🇲🇦" }, { name: "Mozambique", emoji: "🇲🇿" },
-            { name: "Myanmar", emoji: "🇲🇲" }, { name: "Namibia", emoji: "🇳🇦" }, { name: "Nauru", emoji: "🇳🇷" },
-            { name: "Nepal", emoji: "🇳🇵" }, { name: "Netherlands", emoji: "🇳🇱" }, { name: "New Zealand", emoji: "🇳🇿" },
-            { name: "Nicaragua", emoji: "🇳🇮" }, { name: "Niger", emoji: "🇳🇪" }, { name: "Nigeria", emoji: "🇳🇬" },
-            { name: "North Macedonia", emoji: "🇲🇰" }, { name: "Norway", emoji: "🇳🇴" }, { name: "Oman", emoji: "🇴🇲" },
-            { name: "Pakistan", emoji: "🇵🇰" }, { name: "Palau", emoji: "🇵🇼" }, { name: "Palestine", emoji: "🇵🇸" },
-            { name: "Panama", emoji: "🇵🇦" }, { name: "Papua New Guinea", emoji: "🇵🇬" }, { name: "Paraguay", emoji: "🇵🇾" },
-            { name: "Peru", emoji: "🇵🇪" }, { name: "Philippines", emoji: "🇵🇭" }, { name: "Poland", emoji: "🇵🇱" },
-            { name: "Portugal", emoji: "🇵🇹" }, { name: "Qatar", emoji: "🇶🇦" }, { name: "Romania", emoji: "🇷🇴" },
-            { name: "Russia", emoji: "🇷🇺" }, { name: "Rwanda", emoji: "🇷🇼" }, { name: "Saint Kitts and Nevis", emoji: "🇰🇳" },
-            { name: "Saint Lucia", emoji: "🇱🇨" }, { name: "Samoa", emoji: "🇼🇸" }, { name: "San Marino", emoji: "🇸🇲" },
-            { name: "Saudi Arabia", emoji: "🇸🇦" }, { name: "Senegal", emoji: "🇸🇳" }, { name: "Serbia", emoji: "🇷🇸" },
-            { name: "Seychelles", emoji: "🇸🇨" }, { name: "Sierra Leone", emoji: "🇸🇱" }, { name: "Singapore", emoji: "🇸🇬" },
-            { name: "Slovakia", emoji: "🇸🇰" }, { name: "Slovenia", emoji: "🇸🇮" }, { name: "Solomon Islands", emoji: "🇸🇧" },
-            { name: "Somalia", emoji: "🇸🇴" }, { name: "South Africa", emoji: "🇿🇦" }, { name: "Spain", emoji: "🇪🇸" },
-            { name: "Sri Lanka", emoji: "🇱🇰" }, { name: "Sudan", emoji: "🇸🇩" }, { name: "Suriname", emoji: "🇸🇷" },
-            { name: "Sweden", emoji: "🇸🇪" }, { name: "Switzerland", emoji: "🇨🇭" }, { name: "Syria", emoji: "🇸🇾" },
-            { name: "Taiwan", emoji: "🇹🇼" }, { name: "Tajikistan", emoji: "🇹🇯" }, { name: "Tanzania", emoji: "🇹🇿" },
-            { name: "Thailand", emoji: "🇹🇭" }, { name: "Timor-Leste", emoji: "🇹🇱" }, { name: "Togo", emoji: "🇹🇬" },
-            { name: "Tonga", emoji: "🇹🇴" }, { name: "Trinidad and Tobago", emoji: "🇹🇹" }, { name: "Tunisia", emoji: "🇹🇳" },
-            { name: "Turkey", emoji: "🇹🇷" }, { name: "Turkmenistan", emoji: "🇹🇲" }, { name: "Tuvalu", emoji: "🇹🇻" },
-            { name: "Uganda", emoji: "🇺🇬" }, { name: "Ukraine", emoji: "🇺🇦" }, { name: "UAE", emoji: "🇦🇪" },
-            { name: "UK", emoji: "🇬🇧" }, { name: "USA", emoji: "🇺🇸" }, { name: "Uruguay", emoji: "🇺🇾" },
-            { name: "Uzbekistan", emoji: "🇺🇿" }, { name: "Vanuatu", emoji: "🇻🇺" }, { name: "Vatican City", emoji: "🇻🇦" },
-            { name: "Venezuela", emoji: "🇻🇪" }, { name: "Vietnam", emoji: "🇻🇳" }, { name: "Yemen", emoji: "🇾🇪" },
-            { name: "Zambia", emoji: "🇿🇲" }, { name: "Zimbabwe", emoji: "🇿🇼" }
+            { name: "Bangladesh", emoji: "🇧🇩" }, { name: "India", emoji: "🇮🇳" }, { name: "USA", emoji: "🇺🇸" },
+            { name: "UK", emoji: "🇬🇧" }, { name: "Japan", emoji: "🇯🇵" }, { name: "Brazil", emoji: "🇧🇷" },
+            { name: "Germany", emoji: "🇩🇪" }, { name: "France", emoji: "🇫🇷" }, { name: "Canada", emoji: "🇨🇦" },
+            { name: "Australia", emoji: "🇦🇺" }, { name: "Russia", emoji: "🇷🇺" }, { name: "China", emoji: "🇨🇳" },
+            { name: "Argentina", emoji: "🇦🇷" }, { name: "South Korea", emoji: "🇰🇷" }, { name: "Saudi Arabia", emoji: "🇸🇦" },
+            { name: "Turkey", emoji: "🇹🇷" }, { name: "Nigeria", emoji: "🇳🇬" }, { name: "Egypt", emoji: "🇪🇬" },
+            { name: "Mexico", emoji: "🇲🇽" }, { name: "Italy", emoji: "🇮🇹" }, { name: "Spain", emoji: "🇪🇸" },
+            { name: "Pakistan", emoji: "🇵🇰" }, { name: "Indonesia", emoji: "🇮🇩" }, { name: "South Africa", emoji: "🇿🇦" },
+            { name: "Netherlands", emoji: "🇳🇱🇷" }, { name: "Sweden", emoji: "🇸🇪" }, { name: "Switzerland", emoji: "🇨🇭" },
+            { name: "Singapore", emoji: "🇸🇬" }, { name: "UAE", emoji: "🇦🇪" }, { name: "Qatar", emoji: "🇶🇦" },
+            { name: "Malaysia", emoji: "🇲🇾" }, { name: "Thailand", emoji: "🇹🇭" }, { name: "Vietnam", emoji: "🇻🇳" },
+            { name: "Philippines", emoji: "🇵🇭" }, { name: "Ukraine", emoji: "🇺🇦" }, { name: "Poland", emoji: "🇵🇱" },
+            { name: "Norway", emoji: "🇳🇴" }, { name: "Denmark", emoji: "🇩🇰" }, { name: "Finland", emoji: "🇫🇮" },
+            { name: "Greece", emoji: "🇬🇷" }, { name: "Czech Republic", emoji: "🇨🇿" }, { name: "Hungary", emoji: "🇭🇺" },
+            { name: "Portugal", emoji: "🇵🇹" }, { name: "Ireland", emoji: "🇮🇪" }, { name: "New Zealand", emoji: "🇳🇿" },
+            { name: "Israel", emoji: "🇮🇱" }, { name: "Iran", emoji: "🇮🇷" }, { name: "Iraq", emoji: "🇮🇶" },
+            { name: "Colombia", emoji: "🇨🇴" }, { name: "Peru", emoji: "🇵🇪" }, { name: "Chile", emoji: "🇨🇱" },
+            { name: "Morocco", emoji: "🇲🇦" }, { name: "Kenya", emoji: "🇰🇪" }, { name: "Ghana", emoji: "🇬🇭" },
+            { name: "Ethiopia", emoji: "🇪🇹" }, { name: "Algeria", emoji: "🇩🇿" }, { name: "Vietnam", emoji: "🇻🇳" },
+            { name: "Kazakhstan", emoji: "🇰🇿" }, { name: "Uzbekistan", emoji: "🇺🇿" }, { name: "Austria", emoji: "🇦🇹" },
+            { name: "Belgium", emoji: "🇧🇪" }, { name: "Romania", emoji: "🇷🇴" }, { name: "Greece", emoji: "🇬🇷" }
         ];
 
-        let scores = {};
-        flagsData.forEach(f => scores[f.name] = 0);
-
+        // --- গেমের ভেরিয়েবল ---
         const arena = document.getElementById('arena');
-        const scoreList = document.getElementById('scoreList');
-        const statusText = document.getElementById('status');
+        const timerEl = document.getElementById('timer');
+        const qualifyTable = document.getElementById('qualifyTable');
+        
+        const ARENA_SIZE = 500;
+        const RADIUS = ARENA_SIZE / 2;
+        const GAP_WIDTH = 50px; // CSS এর সাথে মিল রেখে
+        const FLAG_SIZE = 30;
 
         let activeFlags = [];
+        let qualificationList = []; // Top 5
+        let timeLeft = 55;
+        let gameInterval;
+        let physicsInterval;
 
-        function initBattle() {
-            arena.innerHTML = '';
+        // --- ১. ইনিশিয়ালাইজেশন ---
+        function initGame() {
+            arena.innerHTML = '<div class="gap"></div>'; // গ্যাপটা ঠিক রাখা
             activeFlags = [];
+            timeLeft = 55;
+            timerEl.innerText = timeLeft;
+            timerEl.style.color = "#ff4757";
 
-            // সব দেশের পতাকা বৃত্তের ভেতর রেন্ডম পজিশনে ছড়ানো
-            flagsData.forEach((data) => {
+            // সব পতাকা রেন্ডম পজিশনে বসানো
+            const shuffled = [...flagsData].sort(() => 0.5 - Math.random());
+            const selectedFlags = shuffled.slice(0, 40); // একসাথে ৪০টা পতাকা, খুব বেশি হলে জ্যাম লেগে যাবে
+
+            selectedFlags.forEach((data) => {
                 const el = document.createElement('div');
                 el.className = 'flag-item';
                 el.innerText = data.emoji;
                 
-                // বৃত্তের ভেতরে র‍্যান্ডম কোঅর্ডিনেট (Radius ~ 210px)
+                // বৃত্তের ভেতরে রেন্ডম পজিশন (কেন্দ্র থেকে একটু দূরে)
                 const angle = Math.random() * Math.PI * 2;
-                const r = Math.random() * 200;
-                const x = 235 + r * Math.cos(angle);
-                const y = 235 + r * Math.sin(angle);
+                const dist = Math.random() * (RADIUS * 0.7);
+                const x = RADIUS - (FLAG_SIZE/2) + (dist * Math.cos(angle));
+                const y = RADIUS - (FLAG_SIZE/2) + (dist * Math.sin(angle));
 
                 el.style.left = `${x}px`;
                 el.style.top = `${y}px`;
@@ -191,76 +206,136 @@
                 arena.appendChild(el);
 
                 activeFlags.push({
-                    name: data.name,
                     element: el,
+                    name: data.name,
                     x: x,
                     y: y,
-                    dx: (Math.random() - 0.5) * 5, 
-                    dy: (Math.random() - 0.5) * 5
+                    vx: (Math.random() - 0.5) * 8, // ভেলোসিটি (গতি)
+                    vy: (Math.random() - 0.5) * 8,
+                    isExiting: false
                 });
             });
-            updateScoreboard();
+
+            updateQualifyTable();
+            
+            // টাইমার ও ফিজিক্স লুপ চালু
+            clearInterval(gameInterval);
+            clearInterval(physicsInterval);
+            gameInterval = setInterval(runTimer, 1000);
+            physicsInterval = setInterval(updatePhysics, 1000 / 60); // ~60 FPS
         }
 
-        function updateBattle() {
-            activeFlags.forEach(flag => {
-                flag.x += flag.dx;
-                flag.y += flag.dy;
+        // --- ২. টাইমার লজিক ---
+        function runTimer() {
+            timeLeft--;
+            timerEl.innerText = timeLeft;
 
-                // বৃত্তের সীমানা চেক (Radius 215px)
-                const dxFromCenter = flag.x - 235;
-                const dyFromCenter = flag.y - 235;
-                const distFromCenter = Math.sqrt(dxFromCenter * dxFromCenter + dyFromCenter * dyFromCenter);
+            if (timeLeft <= 10) {
+                timerEl.style.color = "#ffeb3b"; // শেষ ১০ সেকেন্ডে কালার হলুদ
+            }
 
-                if (distFromCenter > 215) {
-                    flag.dx *= -1;
-                    flag.dy *= -1;
+            if (timeLeft <= 0) {
+                endMatch();
+            }
+        }
+
+        // --- ৩. ফিজিক্স এবং মুভমেন্ট (সবচেয়ে গুরুত্বপূর্ণ অংশ) ---
+        function updatePhysics() {
+            const damping = 0.99; // ফ্রিকশন বা ঘর্ষণ (ধীরে ধীরে গতি কমবে)
+            const collisionRestitution = 0.8; // বাউন্স ফ্যাক্টর
+
+            activeFlags.forEach((flag, index) => {
+                if (flag.isExiting) {
+                    // যদি পতাকা বের হওয়ার মোশনে থাকে, তবে সোজা নিচের দিকে পড়তে থাকবে
+                    flag.vy += 0.5; // গ্রাভিটি বা অভিকর্ষজ টান
+                    flag.y += flag.vy;
+                    flag.element.style.top = `${flag.y}px`;
+
+                    // স্ক্রিন থেকে পুরোপুরি বেরিয়ে গেলে সরিয়ে ফেলা
+                    if (flag.y > ARENA_SIZE + 50) {
+                        flag.element.remove();
+                        activeFlags.splice(index, 1);
+                    }
+                    return; // অন্য ফিজিক্স এপ্লাই হবে না
                 }
 
+                // সাধারণ গতি
+                flag.x += flag.vx;
+                flag.y += flag.vy;
+
+                // দেয়াল বা বাউন্ডারি ডিটেকশন (বৃত্তের ভেতরে)
+                const dx = flag.x + (FLAG_SIZE/2) - RADIUS;
+                const dy = flag.y + (FLAG_SIZE/2) - RADIUS;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+
+                // যদি পতাকা বৃত্তের পরিধিতে আঘাত করে
+                if (dist + (FLAG_SIZE/2) >= RADIUS) {
+                    // নরমাল ভেক্টর বের করা
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+
+                    // প্রতিফলিত ভেক্টর (Reflection)
+                    const dot = flag.vx * nx + flag.vy * ny;
+                    flag.vx = (flag.vx - 2 * dot * nx) * collisionRestitution;
+                    flag.vy = (flag.vy - 2 * dot * ny) * collisionRestitution;
+
+                    // পতাকাকে একটু ভেতরে ঠেলে দেওয়া যাতে আটকে না যায়
+                    const overlap = (dist + FLAG_SIZE/2) - RADIUS;
+                    flag.x -= nx * overlap;
+                    flag.y -= ny * overlap;
+
+                    // --- গ্যাপ চেক (The Logic for the Hole) ---
+                    // গ্যাপের পজিশন: নিচে (bottom), X কোঅর্ডিনেট মিডিলে
+                    const angleToCenter = Math.atan2(dy, dx);
+                    // গ্যাপের অ্যাঙ্গেল রেঞ্জ (নিচের দিকে, আনুমানিক -৯০ ডিগ্রি +/- ১৫ ডিগ্রি)
+                    if (angleToCenter > (Math.PI / 2 - 0.5) && angleToCenter < (Math.PI / 2 + 0.5)) {
+                        // এক্স পজিশন কি গ্যাপের মধ্যে? গ্যাপের সেন্টার RADIUS, তাই রেঞ্জ RADIUS +/- 25
+                        if (Math.abs(dx) < GAP_WIDTH / 2) {
+                            // কপাল ভালো! পতাকা গ্যাপের অ্যাঙ্গেলে আছে এবং এক্স পজিশনও ঠিক আছে।
+                            flag.isExiting = true;
+                            flag.vy = Math.abs(flag.vy) + 2; // জোর করে নিচের দিকে গতি দেওয়া
+                            flag.vx = (Math.random() - 0.5) * 2; // সামান্য এদিক-ওদিক বাঁকানো
+                            
+                            // কোয়ালিফাইড লিস্টে যোগ করা (যেহেতু সে বের হয়ে যাচ্ছে)
+                            if(qualificationList.length < 5) {
+                                qualifyFlag(flag);
+                            }
+                        }
+                    }
+                }
+
+                // গতি কমানো (ফ্রিকশন)
+                flag.vx *= damping;
+                flag.vy *= damping;
+
+                // DOM আপডেট
                 flag.element.style.left = `${flag.x}px`;
                 flag.element.style.top = `${flag.y}px`;
             });
+        }
 
-            // দ্রুত পতাকা কমিয়ে আনার জন্য এলিমিনেশন রেট বাড়ানো হয়েছে
-            if (activeFlags.length > 1) {
-                // প্রতি লুপে দ্রুত পতাকা বাদ পড়ার লজিক
-                for(let i = 0; i < 2; i++) {
-                    if(activeFlags.length > 1 && Math.random() < 0.3) {
-                        const indexToRemove = Math.floor(Math.random() * activeFlags.length);
-                        const removed = activeFlags.splice(indexToRemove, 1)[0];
-                        removed.element.remove();
-                    }
-                }
-            } else if (activeFlags.length === 1) {
-                const winner = activeFlags[0];
-                scores[winner.name]++;
-                statusText.innerText = `🎉 Winner: ${winner.name} ${winner.element.innerText} | Restarting...`;
-                updateScoreboard();
-                
-                setTimeout(initBattle, 3000);
-                return;
+        // --- ৪. কোয়ালিফিকেশন লজিক ---
+        function qualifyFlag(flagData) {
+            // চেক করা যে অলরেডি লিস্টে আছে কিনা
+            if(!qualificationList.some(f => f.name === flagData.name)) {
+                qualificationList.push({
+                    name: flagData.name,
+                    emoji: flagData.element.innerText
+                });
+                updateQualifyTable();
             }
-
-            requestAnimationFrame(updateBattle);
         }
 
-        function updateScoreboard() {
-            scoreList.innerHTML = '';
-            const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-            
-            sortedScores.forEach(([name, score]) => {
-                if(score > 0) { // কেবল জয়ী দেশগুলোকে লিডারবোর্ডে দেখাবে
-                    const div = document.createElement('div');
-                    div.className = 'score-item';
-                    div.innerHTML = `<span>${name}</span> <strong>${score} wins</strong>`;
-                    scoreList.appendChild(div);
-                }
-            });
-        }
+        function updateQualifyTable() {
+            qualifyTable.innerHTML = ''; // ক্লিয়ার করা
 
-        // খেলা শুরু
-        initBattle();
-        requestAnimationFrame(updateBattle);
-    </script>
-</body>
-</html>
+            // টেবিল হেডার
+            qualifyTable.innerHTML = `
+                <tr>
+                    <th>#</th>
+                    <th>দেশ</th>
+                    <th>স্ট্যাটাস</th>
+                </tr>
+            `;
+
+            const medals = ["text-gold", "text-silver", "text-bronze"];
