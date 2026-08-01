@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flags Battle Royale - Premium Edition</title>
+    <title>Flags Battle Royale - Ultra Smooth</title>
     <style>
         * {
             box-sizing: border-box;
@@ -73,6 +73,11 @@
             width: 330px;
             height: 330px;
             margin-top: 10px;
+            transition: transform 0.5s ease;
+        }
+        
+        /* ঘূর্ণন ক্লাস */
+        .arena-container.rotating {
             animation: rotateArena 25s linear infinite;
         }
 
@@ -93,7 +98,7 @@
             overflow: visible;
         }
 
-        /* Premium Gap (গেট বা ফাঁক) */
+        /* Gap (গেট) */
         .gap {
             position: absolute;
             bottom: -8px;
@@ -117,7 +122,6 @@
             justify-content: center;
             width: 42px;
             height: 38px;
-            transition: transform 0.2s ease;
             will-change: left, top;
         }
         .flag-emoji {
@@ -136,13 +140,13 @@
             border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
-        /* Winner Announcement Overlay Inside Arena */
+        /* Winner Overlay Inside Arena */
         .winner-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(3, 7, 18, 0.92);
+            background: rgba(3, 7, 18, 0.95);
             border: 2px solid #facc15;
             border-radius: 12px;
             padding: 15px 25px;
@@ -154,44 +158,27 @@
             0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
             100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
-        .winner-overlay .w-emoji {
-            font-size: 45px;
-        }
-        .winner-overlay .w-text {
-            color: #facc15;
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .winner-overlay .w-name {
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 2px;
-        }
+        .winner-overlay .w-emoji { font-size: 45px; }
+        .winner-overlay .w-text { color: #facc15; font-size: 14px; font-weight: bold; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .winner-overlay .w-name { color: #fff; font-size: 16px; font-weight: bold; margin-top: 2px; }
     </style>
 </head>
 <body>
 
-    <!-- Top Header Box (4 Groups & Wins) -->
+    <!-- Top Header Box -->
     <div class="top-header">
         <div class="header-title" id="headerTitle">🏁 BATTLE ROYALE 🏁</div>
-        <div class="groups-grid" id="groupsGrid">
-            <!-- ডাইনামিক গ্রুপ স্কোর এখানে আসবে -->
-        </div>
+        <div class="groups-grid" id="groupsGrid"></div>
     </div>
 
     <!-- Arena Container -->
-    <div class="arena-container">
+    <div class="arena-container rotating" id="arenaContainer">
         <div class="arena" id="arena">
             <div class="gap"></div>
         </div>
     </div>
 
     <script>
-        // ৪টি দলে বিভক্ত করে দেশের তালিকা
         const groupsData = [
             { name: "Group A", flags: [{ name: "Bangladesh", emoji: "🇧🇩" }, { name: "India", emoji: "🇮🇳" }, { name: "Pakistan", emoji: "🇵🇰" }, { name: "Sri Lanka", emoji: "🇱🇰" }] },
             { name: "Group B", flags: [{ name: "Brazil", emoji: "🇧🇷" }, { name: "Argentina", emoji: "🇦🇷" }, { name: "France", emoji: "🇫🇷" }, { name: "Germany", emoji: "🇩🇪" }] },
@@ -202,6 +189,7 @@
         let groupWins = { "Group A": 0, "Group B": 0, "Group C": 0, "Group D": 0 };
 
         const arena = document.getElementById('arena');
+        const arenaContainer = document.getElementById('arenaContainer');
         const groupsGrid = document.getElementById('groupsGrid');
         const headerTitle = document.getElementById('headerTitle');
 
@@ -224,7 +212,6 @@
         }
 
         function initGame() {
-            // পুরানো ওভারলে বা এলিমেন্ট পরিষ্কার করা
             const oldOverlay = arena.querySelector('.winner-overlay');
             if (oldOverlay) oldOverlay.remove();
 
@@ -233,7 +220,10 @@
             isMatchOver = false;
             headerTitle.innerText = "🏁 TOURNAMENT BATTLE RUNNING 🏁";
 
-            // সব দল থেকে পতাকা নিয়ে মোট ১৬টি পতাকা প্রস্তুত করা
+            // বৃত্ত সচল (ঘূর্ণন অন) করা
+            arenaContainer.classList.add('rotating');
+            arenaContainer.style.transform = "rotate(0deg)";
+
             let allMatchFlags = [];
             groupsData.forEach(g => {
                 g.flags.forEach(f => {
@@ -241,7 +231,6 @@
                 });
             });
 
-            // রেন্ডম শাফেল
             allMatchFlags.sort(() => 0.5 - Math.random());
 
             allMatchFlags.forEach((data) => {
@@ -279,10 +268,9 @@
 
             physicsInterval = setInterval(updatePhysics, 1000 / 60);
 
-            // ৫০ সেকেন্ডের মধ্যে ম্যাচ উইন হওয়ার ফিক্সড টাইম লজিক (টাইমার হাইড থাকবে)
+            // ৫০ সেকেন্ডের মধ্যে ম্যাচ উইন হওয়ার টাইম লজিক
             matchTimer = setTimeout(() => {
                 if (!isMatchOver && activeFlags.length > 0) {
-                    // শেষ পর্যন্ত যে বা যারা থাকে তার মধ্য থেকে রেন্ডম একজনকে উইনার ঘোষণা করা
                     let survivor = activeFlags[Math.floor(Math.random() * activeFlags.length)];
                     declareWinner(survivor);
                 }
@@ -292,7 +280,7 @@
         function updatePhysics() {
             if (isMatchOver) return;
 
-            // যদি মাঠে মাত্র ১টি পতাকা বেঁচে থাকে
+            // পতাকা কমে যখন শেষ ৩/৪ টি থাকবে, তখন আরও ২-৩ বার তীব্র ব্যাটল করে উইন হবে
             if (activeFlags.length === 1 && !activeFlags[0].isExiting) {
                 clearTimeout(matchTimer);
                 declareWinner(activeFlags[0]);
@@ -314,9 +302,8 @@
                     continue;
                 }
 
-                // প্রিমিয়াম র‍্যান্ডম মুভমেন্ট
-                flag.vx += (Math.random() - 0.5) * 0.8;
-                flag.vy += (Math.random() - 0.5) * 0.8;
+                flag.vx += (Math.random() - 0.5) * 0.9;
+                flag.vy += (Math.random() - 0.5) * 0.9;
 
                 flag.x += flag.vx;
                 flag.y += flag.vy;
@@ -325,17 +312,17 @@
                 const dy = flag.y + 19 - RADIUS;
                 const dist = Math.sqrt(dx*dx + dy*dy);
 
-                // বৃত্তের বাউন্ডারি এবং নিচের ফাঁক দিয়ে প্রিমিয়াম এক্সিট অ্যানিমেশন
                 if (dist + 19 >= RADIUS - 5) {
                     const nx = dx / dist;
                     const ny = dy / dist;
 
-                    // নিচের গেট বা গ্যাপ দিয়ে বের হওয়ার নিখুঁত শর্ত (পতাকা বেশি থাকলে দ্রুত কমানো)
-                    if (Math.abs(dx) < 25 && dy > RADIUS - 45 && activeFlags.length > 1) {
+                    // পতাকা বেশি থাকলে গেট দিয়ে বের হবে, কিন্তু শেষ ৩-৪ টি থাকলে ব্যাটল করার জন্য এক্সিট স্লো করা হবে
+                    let exitThreshold = activeFlags.length <= 3 ? 18 : 25;
+
+                    if (Math.abs(dx) < exitThreshold && dy > RADIUS - 45 && activeFlags.length > 1) {
                         flag.isExiting = true;
                         flag.vx = 0;
                         flag.vy = 6;
-                        // প্রিমিয়াম ইফেক্টের জন্য ফেইড আউট বা স্কেল করা
                         flag.element.style.transition = "transform 0.3s ease";
                         flag.element.style.transform = "scale(0.5)";
                         continue;
@@ -361,26 +348,30 @@
             clearInterval(physicsInterval);
             clearTimeout(matchTimer);
 
-            // বিজয়ী দলের পয়েন্ট ১ বাড়িয়ে দেওয়া
+            // বৃত্তের ঘূর্ণন বন্ধ করা এবং সোজা করা
+            arenaContainer.classList.remove('rotating');
+            arenaContainer.style.transform = "rotate(0deg)";
+
+            // বিজয়ী দলের পয়েন্ট আপডেট
             groupWins[winner.group]++;
             updateGroupUI();
 
             headerTitle.innerText = `🏆 ${winner.group} WON THE MATCH! 🏆`;
 
-            // বৃত্তের ভেতরে থাকা বাকি সব পতাকা রিমুভ করা
+            // বাকি পতাকা রিমুভ করা
             activeFlags.forEach(f => {
                 if(f !== winner) f.element.remove();
             });
             activeFlags = [winner];
 
-            // বিজয়ী পতাকাকে বৃত্তের ঠিক মাঝে এনে বড় করে প্রিমিয়াম উইনার লুক দেওয়া
+            // বিজয়ী পতাকা বৃত্তের ঠিক মাঝে সোজা ও বড় আকারে প্রদর্শন করা
             winner.element.style.transition = "all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
             winner.element.style.left = `${RADIUS - 21}px`;
             winner.element.style.top = `${RADIUS - 19}px`;
             winner.element.style.transform = "scale(1.8)";
             winner.element.style.zIndex = "50";
 
-            // বৃত্তের ভেতরে মাঝখানে প্রিমিয়াম উইনার ওভারলে পপআপ
+            // উইনার ওভারলে পপআপ
             const overlay = document.createElement('div');
             overlay.className = 'winner-overlay';
             overlay.innerHTML = `
@@ -390,11 +381,10 @@
             `;
             arena.appendChild(overlay);
 
-            // ৪ সেকেন্ড পর স্বয়ংক্রিয়ভাবে নতুন ম্যাচ শুরু হবে (অটো-প্লে লুপ)
+            // ৪.৫ সেকেন্ড পর নতুন ম্যাচ শুরু হবে এবং বৃত্ত আবার ঘুরতে শুরু করবে
             setTimeout(initGame, 4500);
         }
 
-        // গেম শুরু
         initGame();
     </script>
 </body>
