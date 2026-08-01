@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flags Battle Royale - Ultra Smooth</title>
+    <title>Flags Battle Royale - Professional Edition</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,7 +11,7 @@
             padding: 0;
         }
         body {
-            background: radial-gradient(circle, #0b192c 0%, #030712 100%);
+            background: radial-gradient(circle, #08121e 0%, #02060c 100%);
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
@@ -24,24 +24,35 @@
             padding: 10px;
         }
 
-        /* Top Header Box (Group Scoreboard) */
+        /* Top Header Box (Scoreboard) */
         .top-header {
-            background: linear-gradient(135deg, #0f2b46 0%, #091726 100%);
+            background: linear-gradient(135deg, #0d233a 0%, #071321 100%);
             border: 2px solid #1e3a8a;
             border-radius: 12px;
             width: 100%;
             max-width: 360px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             padding: 10px;
-            box-shadow: 0 4px 20px rgba(0, 149, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 149, 255, 0.25);
         }
         .header-title {
             color: #38bdf8;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+        .last-winner-banner {
+            background: rgba(250, 204, 21, 0.15);
+            border: 1px solid #facc15;
+            border-radius: 6px;
+            padding: 5px;
+            font-size: 11px;
+            color: #facc15;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
         }
         .groups-grid {
             display: grid;
@@ -49,7 +60,7 @@
             gap: 6px;
         }
         .group-card {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.9);
             border: 1px solid #1e3a8a;
             border-radius: 6px;
             padding: 6px 8px;
@@ -63,8 +74,11 @@
             font-weight: 600;
         }
         .group-score {
-            color: #facc15;
+            color: #38bdf8;
             font-weight: bold;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
         /* Main Arena Container */
@@ -75,12 +89,9 @@
             margin-top: 10px;
             transition: transform 0.5s ease;
         }
-        
-        /* ঘূর্ণন ক্লাস */
         .arena-container.rotating {
-            animation: rotateArena 25s linear infinite;
+            animation: rotateArena 30s linear infinite;
         }
-
         @keyframes rotateArena {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -94,7 +105,7 @@
             border-radius: 50%;
             position: relative;
             background: radial-gradient(circle, #0f172a 0%, #020617 85%);
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.25), inset 0 0 20px rgba(0,0,0,0.8);
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3), inset 0 0 25px rgba(0,0,0,0.9);
             overflow: visible;
         }
 
@@ -106,7 +117,7 @@
             transform: translateX(-50%);
             width: 60px;
             height: 10px;
-            background-color: #030712;
+            background-color: #02060c;
             z-index: 5;
             border-bottom: 3px solid #ef4444;
             border-radius: 5px;
@@ -126,12 +137,12 @@
         }
         .flag-emoji {
             font-size: 22px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
         }
         .flag-name {
             font-size: 8px;
             color: #f8fafc;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.9);
             padding: 1px 4px;
             border-radius: 4px;
             white-space: nowrap;
@@ -140,34 +151,35 @@
             border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
-        /* Winner Overlay Inside Arena */
+        /* Professional Winner Popup Overlay */
         .winner-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(3, 7, 18, 0.95);
+            background: rgba(3, 7, 18, 0.96);
             border: 2px solid #facc15;
-            border-radius: 12px;
-            padding: 15px 25px;
+            border-radius: 14px;
+            padding: 16px 26px;
             z-index: 100;
-            box-shadow: 0 0 25px rgba(250, 204, 21, 0.5);
-            animation: popUp 0.5s ease-out;
+            box-shadow: 0 0 35px rgba(250, 204, 21, 0.6);
+            animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popUp {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
             100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
-        .winner-overlay .w-emoji { font-size: 45px; }
-        .winner-overlay .w-text { color: #facc15; font-size: 14px; font-weight: bold; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .winner-overlay .w-name { color: #fff; font-size: 16px; font-weight: bold; margin-top: 2px; }
+        .winner-overlay .w-emoji { font-size: 48px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+        .winner-overlay .w-text { color: #facc15; font-size: 13px; font-weight: bold; margin-top: 4px; text-transform: uppercase; letter-spacing: 1.5px; }
+        .winner-overlay .w-name { color: #fff; font-size: 17px; font-weight: bold; margin-top: 2px; }
     </style>
 </head>
 <body>
 
     <!-- Top Header Box -->
     <div class="top-header">
-        <div class="header-title" id="headerTitle">🏁 BATTLE ROYALE 🏁</div>
+        <div class="header-title">🏁 Tournament Scoreboard 🏁</div>
+        <div class="last-winner-banner" id="lastWinnerBanner">Last Winner: None yet</div>
         <div class="groups-grid" id="groupsGrid"></div>
     </div>
 
@@ -187,21 +199,22 @@
         ];
 
         let groupWins = { "Group A": 0, "Group B": 0, "Group C": 0, "Group D": 0 };
+        let lastWinnerName = "None yet";
 
         const arena = document.getElementById('arena');
         const arenaContainer = document.getElementById('arenaContainer');
         const groupsGrid = document.getElementById('groupsGrid');
-        const headerTitle = document.getElementById('headerTitle');
+        const lastWinnerBanner = document.getElementById('lastWinnerBanner');
 
         const ARENA_SIZE = 330;
         const RADIUS = ARENA_SIZE / 2;
 
         let activeFlags = [];
         let physicsInterval;
-        let matchTimer;
         let isMatchOver = false;
 
-        function updateGroupUI() {
+        function updateScoreboardUI() {
+            lastWinnerBanner.innerText = `👑 Last Winner: ${lastWinnerName}`;
             groupsGrid.innerHTML = '';
             groupsData.forEach(g => {
                 const card = document.createElement('div');
@@ -218,9 +231,8 @@
             arena.innerHTML = '<div class="gap"></div>';
             activeFlags = [];
             isMatchOver = false;
-            headerTitle.innerText = "🏁 TOURNAMENT BATTLE RUNNING 🏁";
 
-            // বৃত্ত সচল (ঘূর্ণন অন) করা
+            // বৃত্ত পুনরায় ঘুরতে শুরু করবে
             arenaContainer.classList.add('rotating');
             arenaContainer.style.transform = "rotate(0deg)";
 
@@ -255,34 +267,23 @@
                     group: data.group,
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 6,
-                    vy: (Math.random() - 0.5) * 6,
+                    vx: (Math.random() - 0.5) * 6.5,
+                    vy: (Math.random() - 0.5) * 6.5,
                     isExiting: false
                 });
             });
 
-            updateGroupUI();
+            updateScoreboardUI();
 
             clearInterval(physicsInterval);
-            clearTimeout(matchTimer);
-
             physicsInterval = setInterval(updatePhysics, 1000 / 60);
-
-            // ৫০ সেকেন্ডের মধ্যে ম্যাচ উইন হওয়ার টাইম লজিক
-            matchTimer = setTimeout(() => {
-                if (!isMatchOver && activeFlags.length > 0) {
-                    let survivor = activeFlags[Math.floor(Math.random() * activeFlags.length)];
-                    declareWinner(survivor);
-                }
-            }, 50000);
         }
 
         function updatePhysics() {
             if (isMatchOver) return;
 
-            // পতাকা কমে যখন শেষ ৩/৪ টি থাকবে, তখন আরও ২-৩ বার তীব্র ব্যাটল করে উইন হবে
+            // মাঠে মাত্র ১টি পতাকা বেঁচে থাকলে সে ফাইনাল উইনার
             if (activeFlags.length === 1 && !activeFlags[0].isExiting) {
-                clearTimeout(matchTimer);
                 declareWinner(activeFlags[0]);
                 return;
             }
@@ -302,8 +303,9 @@
                     continue;
                 }
 
-                flag.vx += (Math.random() - 0.5) * 0.9;
-                flag.vy += (Math.random() - 0.5) * 0.9;
+                // স্বাভাবিক ও সমান ফিজিক্স ব্যাটল মুভমেন্ট
+                flag.vx += (Math.random() - 0.5) * 0.8;
+                flag.vy += (Math.random() - 0.5) * 0.8;
 
                 flag.x += flag.vx;
                 flag.y += flag.vy;
@@ -316,8 +318,8 @@
                     const nx = dx / dist;
                     const ny = dy / dist;
 
-                    // পতাকা বেশি থাকলে গেট দিয়ে বের হবে, কিন্তু শেষ ৩-৪ টি থাকলে ব্যাটল করার জন্য এক্সিট স্লো করা হবে
-                    let exitThreshold = activeFlags.length <= 3 ? 18 : 25;
+                    // পতাকার সংখ্যা কমে গেলে ব্যাটল আরও তীব্র হওয়ার জন্য এক্সিট কন্ডিশন নিখুঁত করা হয়েছে
+                    let exitThreshold = activeFlags.length <= 3 ? 16 : 25;
 
                     if (Math.abs(dx) < exitThreshold && dy > RADIUS - 45 && activeFlags.length > 1) {
                         flag.isExiting = true;
@@ -329,8 +331,8 @@
                     }
 
                     const dot = flag.vx * nx + flag.vy * ny;
-                    flag.vx = (flag.vx - 2 * dot * nx) * 0.82;
-                    flag.vy = (flag.vy - 2 * dot * ny) * 0.82;
+                    flag.vx = (flag.vx - 2 * dot * nx) * 0.84;
+                    flag.vy = (flag.vy - 2 * dot * ny) * 0.84;
 
                     const overlap = (dist + 19) - (RADIUS - 4);
                     flag.x -= nx * overlap;
@@ -346,19 +348,17 @@
             if (isMatchOver) return;
             isMatchOver = true;
             clearInterval(physicsInterval);
-            clearTimeout(matchTimer);
 
-            // বৃত্তের ঘূর্ণন বন্ধ করা এবং সোজা করা
+            // বৃত্তের ঘূর্ণন থামানো এবং সোজা করা
             arenaContainer.classList.remove('rotating');
             arenaContainer.style.transform = "rotate(0deg)";
 
-            // বিজয়ী দলের পয়েন্ট আপডেট
+            // স্কোর এবং লাস্ট উইনার আপডেট
             groupWins[winner.group]++;
-            updateGroupUI();
+            lastWinnerName = `${winner.group} (${winner.name} ${winner.emoji})`;
+            updateScoreboardUI();
 
-            headerTitle.innerText = `🏆 ${winner.group} WON THE MATCH! 🏆`;
-
-            // বাকি পতাকা রিমুভ করা
+            // বিজয়ী ছাড়া বাকি সব পতাকা রিমুভ করা
             activeFlags.forEach(f => {
                 if(f !== winner) f.element.remove();
             });
@@ -368,23 +368,24 @@
             winner.element.style.transition = "all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
             winner.element.style.left = `${RADIUS - 21}px`;
             winner.element.style.top = `${RADIUS - 19}px`;
-            winner.element.style.transform = "scale(1.8)";
+            winner.element.style.transform = "scale(1.9)";
             winner.element.style.zIndex = "50";
 
-            // উইনার ওভারলে পপআপ
+            // প্রফেশনাল উইনার ওভারলে পপআপ
             const overlay = document.createElement('div');
             overlay.className = 'winner-overlay';
             overlay.innerHTML = `
                 <div class="w-emoji">${winner.emoji}</div>
-                <div class="w-text">${winner.group} Winner</div>
+                <div class="w-text">${winner.group} WINNER</div>
                 <div class="w-name">${winner.name}</div>
             `;
             arena.appendChild(overlay);
 
-            // ৪.৫ সেকেন্ড পর নতুন ম্যাচ শুরু হবে এবং বৃত্ত আবার ঘুরতে শুরু করবে
+            // ৪.৫ সেকেন্ড পর স্বয়ংক্রিয়ভাবে নতুন রাউন্ড শুরু হবে
             setTimeout(initGame, 4500);
         }
 
+        // গেম অটো স্টার্ট
         initGame();
     </script>
 </body>
