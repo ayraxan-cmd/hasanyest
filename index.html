@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flags Battle Royale - Fast Action</title>
+    <title>Flags Battle Royale - Balanced Speed</title>
     <style>
         * {
             box-sizing: border-box;
@@ -202,7 +202,6 @@
             { name: "Turkey", emoji: "🇹🇷" }, { name: "Italy", emoji: "🇮🇹" }, { name: "Spain", emoji: "🇪🇸" }, { name: "Australia", emoji: "🇦🇺" }
         ];
 
-        // প্রতিটি দেশের উইন কাউন্ট ট্র্যাক করার অবজেক্ট
         let countryWins = {};
         flagsData.forEach(f => countryWins[f.name] = 0);
 
@@ -223,14 +222,12 @@
         function updateScoreboardUI() {
             lastWinnerBanner.innerText = `👑 Last Winner: ${lastWinnerName}`;
             
-            // যে দেশগুলো বেশি উইন করেছে তাদের সাজিয়ে প্রথম ৪টি ওপরের বক্সে দেখানো হবে
             let sortedCountries = Object.keys(countryWins).map(name => {
                 let flagObj = flagsData.find(f => f.name === name);
                 return { name, wins: countryWins[name], emoji: flagObj ? flagObj.emoji : "🏳️" };
             }).sort((a, b) => b.wins - a.wins);
 
             scoresGrid.innerHTML = '';
-            // শীর্ষ ৪টি দেশ দেখাবে
             for (let i = 0; i < 4; i++) {
                 let c = sortedCountries[i];
                 const card = document.createElement('div');
@@ -251,12 +248,11 @@
             activeFlags = [];
             isMatchOver = false;
 
-            // বৃত্ত পুনরায় সচল করা
             arenaContainer.classList.add('rotating');
             arenaContainer.style.transform = "rotate(0deg)";
 
             let shuffled = [...flagsData].sort(() => 0.5 - Math.random());
-            let selectedFlags = shuffled.slice(0, 16); // ১৬টি পতাকা নিয়ে ম্যাচ
+            let selectedFlags = shuffled.slice(0, 16);
 
             selectedFlags.forEach((data) => {
                 const el = document.createElement('div');
@@ -273,15 +269,15 @@
 
                 arena.appendChild(el);
 
-                // মারামারির স্পিড বাড়ানোর জন্য ভেলোসিটি বা গতি বাড়িয়ে দেওয়া হয়েছে (যেমন: ৮.৫ পর্যন্ত)
+                // স্পিড একটু কমিয়ে ৪.৮ করা হয়েছে, যাতে স্মুথ ও নিয়ন্ত্রিত লড়াই হয়
                 activeFlags.push({
                     element: el,
                     name: data.name,
                     emoji: data.emoji,
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 8.5,
-                    vy: (Math.random() - 0.5) * 8.5,
+                    vx: (Math.random() - 0.5) * 4.8,
+                    vy: (Math.random() - 0.5) * 4.8,
                     isExiting: false
                 });
             });
@@ -295,13 +291,12 @@
         function updatePhysics() {
             if (isMatchOver) return;
 
-            // শেষ ১টি পতাকা বেঁচে থাকলে উইনার
             if (activeFlags.length === 1 && !activeFlags[0].isExiting) {
                 declareWinner(activeFlags[0]);
                 return;
             }
 
-            // পতাকাগুলোর নিজেদের মধ্যকার ধাক্কাধাক্কি বা মারামারি (Collision) লজিক
+            // পতাকাদের নিজেদের মধ্যকার ধাক্কাধাক্কি (মডারেট স্পিড)
             for (let i = 0; i < activeFlags.length; i++) {
                 for (let j = i + 1; j < activeFlags.length; j++) {
                     let f1 = activeFlags[i];
@@ -310,26 +305,24 @@
                     let dx = f2.x - f1.x;
                     let dy = f2.y - f1.y;
                     let dist = Math.sqrt(dx * dx + dy * dy);
-                    let minDist = 35; // পতাকাদুটি কাছাকাছি আসলে ধাক্কা খাবে
+                    let minDist = 35;
 
                     if (dist < minDist && !f1.isExiting && !f2.isExiting) {
                         let nx = dx / dist;
                         let ny = dy / dist;
                         let overlap = minDist - dist;
 
-                        // একে অপরকে দূরে ঠেলে দেওয়া (টানটান মারামারি ইফেক্ট)
                         f1.x -= nx * overlap * 0.5;
                         f1.y -= ny * overlap * 0.5;
                         f2.x += nx * overlap * 0.5;
                         f2.y += ny * overlap * 0.5;
 
-                        // ভেলোসিটি এক্সচেঞ্জ ও স্পিড বুস্ট
                         let tempVx = f1.vx;
                         let tempVy = f1.vy;
-                        f1.vx = f2.vx * 1.1;
-                        f1.vy = f2.vy * 1.1;
-                        f2.vx = tempVx * 1.1;
-                        f2.vy = tempVy * 1.1;
+                        f1.vx = f2.vx * 1.02;
+                        f1.vy = f2.vy * 1.02;
+                        f2.vx = tempVx * 1.02;
+                        f2.vy = tempVy * 1.02;
                     }
                 }
             }
@@ -338,7 +331,7 @@
                 let flag = activeFlags[i];
 
                 if (flag.isExiting) {
-                    flag.vy += 0.7;
+                    flag.vy += 0.5;
                     flag.y += flag.vy;
                     flag.element.style.top = `${flag.y}px`;
 
@@ -349,9 +342,9 @@
                     continue;
                 }
 
-                // অতিরিক্ত র‍্যান্ডম ফোর্স বা স্পিড
-                flag.vx += (Math.random() - 0.5) * 1.2;
-                flag.vy += (Math.random() - 0.5) * 1.2;
+                // স্বাভাবিক র‍্যান্ডম মুভমেন্ট স্পিড
+                flag.vx += (Math.random() - 0.5) * 0.5;
+                flag.vy += (Math.random() - 0.5) * 0.5;
 
                 flag.x += flag.vx;
                 flag.y += flag.vy;
@@ -369,15 +362,15 @@
                     if (Math.abs(dx) < exitThreshold && dy > RADIUS - 45 && activeFlags.length > 1) {
                         flag.isExiting = true;
                         flag.vx = 0;
-                        flag.vy = 7;
+                        flag.vy = 5;
                         flag.element.style.transition = "transform 0.3s ease";
                         flag.element.style.transform = "scale(0.5)";
                         continue;
                     }
 
                     const dot = flag.vx * nx + flag.vy * ny;
-                    flag.vx = (flag.vx - 2 * dot * nx) * 0.88;
-                    flag.vy = (flag.vy - 2 * dot * ny) * 0.88;
+                    flag.vx = (flag.vx - 2 * dot * nx) * 0.90;
+                    flag.vy = (flag.vy - 2 * dot * ny) * 0.90;
 
                     const overlap = (dist + 19) - (RADIUS - 4);
                     flag.x -= nx * overlap;
@@ -394,29 +387,24 @@
             isMatchOver = true;
             clearInterval(physicsInterval);
 
-            // বৃত্তের ঘূর্ণন থামানো এবং সোজা করা
             arenaContainer.classList.remove('rotating');
             arenaContainer.style.transform = "rotate(0deg)";
 
-            // উইন কাউন্ট ও লাস্ট উইনার আপডেট
             countryWins[winner.name]++;
             lastWinnerName = `${winner.name} ${winner.emoji}`;
             updateScoreboardUI();
 
-            // বিজয়ী ছাড়া বাকি সব পতাকা রিমুভ করা
             activeFlags.forEach(f => {
                 if(f !== winner) f.element.remove();
             });
             activeFlags = [winner];
 
-            // বিজয়ী পতাকা বৃত্তের মাঝে সোজা ও বড় আকারে প্রদর্শন করা
             winner.element.style.transition = "all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
             winner.element.style.left = `${RADIUS - 21}px`;
             winner.element.style.top = `${RADIUS - 19}px`;
             winner.element.style.transform = "scale(1.9)";
             winner.element.style.zIndex = "50";
 
-            // উইনার ওভারলে পপআপ
             const overlay = document.createElement('div');
             overlay.className = 'winner-overlay';
             overlay.innerHTML = `
@@ -426,11 +414,9 @@
             `;
             arena.appendChild(overlay);
 
-            // ৪.৫ সেকেন্ড পর নতুন ম্যাচ শুরু হবে
             setTimeout(initGame, 4500);
         }
 
-        // গেম অটো স্টার্ট
         initGame();
     </script>
 </body>
