@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flags Battle Royale - Fixed</title>
+    <title>Flags Battle Royale - Rotating Arena</title>
     <style>
         * {
             box-sizing: border-box;
@@ -63,28 +63,18 @@
             gap: 8px;
         }
 
-        /* Main Arena Container */
+        /* Main Arena Container (এখানে বৃত্ত ঘুরবে) */
         .arena-container {
             position: relative;
             width: 320px;
             height: 320px;
-            margin-top: 15px;
+            margin-top: 10px;
+            animation: rotateArena 15s linear infinite; /* পুরো বৃত্তটি ঘুরবে */
         }
 
-        /* Timer */
-        #timer {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 18px;
-            font-weight: bold;
-            color: #ff4757;
-            background: rgba(5, 11, 21, 0.9);
-            padding: 2px 12px;
-            border-radius: 4px;
-            border: 1px solid #ff4757;
-            z-index: 10;
+        @keyframes rotateArena {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* The Circle Arena */
@@ -96,20 +86,20 @@
             position: relative;
             background: radial-gradient(circle, #0a1930 0%, #050b15 80%);
             box-shadow: 0 0 20px rgba(0, 191, 255, 0.2);
-            overflow: visible; /* পতাকা যাতে বৃত্তের বাইরে যেতে পারে */
+            overflow: visible;
         }
 
-        /* The Gap (বৃত্তের নিচের কাটা অংশ বা ফাঁক) */
+        /* The Gap (বৃত্তের নিচের ফাঁক বা গেট) */
         .gap {
             position: absolute;
             bottom: -7px;
             left: 50%;
             transform: translateX(-50%);
-            width: 50px;
+            width: 55px;
             height: 8px;
-            background-color: #050b15; /* ব্যাকগ্রাউন্ডের সাথে মিশে থাকবে */
+            background-color: #050b15;
             z-index: 5;
-            border-bottom: 3px solid #ff4757; /* গেট বা ফাঁকটি বুঝানোর জন্য লাল বর্ডার */
+            border-bottom: 3px solid #ff4757;
             border-radius: 4px;
         }
 
@@ -122,7 +112,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            will-change: transform, left, top; /* ল্যাগ দূর করার জন্য হার্ডওয়্যার অ্যাকসেলেরেশন */
+            will-change: transform, left, top;
         }
     </style>
 </head>
@@ -136,7 +126,6 @@
 
     <!-- Arena Container -->
     <div class="arena-container">
-        <div id="timer">55</div>
         <div class="arena" id="arena">
             <div class="gap"></div>
         </div>
@@ -162,7 +151,6 @@
         ];
 
         const arena = document.getElementById('arena');
-        const timerEl = document.getElementById('timer');
         const qualifyListEl = document.getElementById('qualifyList');
         const headerTitle = document.getElementById('headerTitle');
 
@@ -172,8 +160,6 @@
 
         let activeFlags = [];
         let qualifiedFlags = [];
-        let timeLeft = 55;
-        let gameInterval;
         let physicsInterval;
         let isMatchOver = false;
 
@@ -181,14 +167,11 @@
             arena.innerHTML = '<div class="gap"></div>';
             activeFlags = [];
             qualifiedFlags = [];
-            timeLeft = 55;
             isMatchOver = false;
-            timerEl.innerText = timeLeft;
-            timerEl.style.color = "#ff4757";
             headerTitle.innerText = "🏁 QUALIFYING (5 QUALIFIED) 🏁";
 
             const shuffled = [...flagsData].sort(() => 0.5 - Math.random());
-            const selectedFlags = shuffled.slice(0, 25); // স্মুথ রাখার জন্য ২৫টি পতাকা রাখা হলো
+            const selectedFlags = shuffled.slice(0, 25);
 
             selectedFlags.forEach((data) => {
                 const el = document.createElement('div');
@@ -219,20 +202,8 @@
 
             updateQualifyUI();
 
-            clearInterval(gameInterval);
             clearInterval(physicsInterval);
-            gameInterval = setInterval(runTimer, 1000);
             physicsInterval = setInterval(updatePhysics, 1000 / 60);
-        }
-
-        function runTimer() {
-            if (isMatchOver) return;
-            timeLeft--;
-            timerEl.innerText = timeLeft;
-
-            if (timeLeft <= 0) {
-                initGame(); // সময় শেষ হলে নতুন ম্যাচ
-            }
         }
 
         function updatePhysics() {
@@ -256,29 +227,25 @@
                 flag.x += flag.vx;
                 flag.y += flag.vy;
 
-                // বৃত্তের কেন্দ্র থেকে দূরত্ব
                 const dx = flag.x + (FLAG_SIZE/2) - RADIUS;
                 const dy = flag.y + (FLAG_SIZE/2) - RADIUS;
                 const dist = Math.sqrt(dx*dx + dy*dy);
 
-                // পরিধি বাউন্ডারি চেক
                 if (dist + (FLAG_SIZE/2) >= RADIUS - 4) {
                     const nx = dx / dist;
                     const ny = dy / dist;
 
-                    // গ্যাপ চেক (নিচের দিকে এক্স অক্ষ বরাবর সেন্টারের কাছাকাছি এবং পজিটিভ ওয়াই)
-                    // গ্যাপের রেঞ্জ: এক্স এর দূরত্ব এবং নিচের দিক (dy > RADIUS - 30)
-                    if (Math.abs(dx) < 25 && dy > RADIUS - 40) {
+                    // গ্যাপ বা ফাঁক দিয়ে বের হওয়ার লজিক (নিচের অংশ)
+                    if (Math.abs(dx) < 28 && dy > RADIUS - 45) {
                         if (qualifiedFlags.length < 5) {
                             flag.isExiting = true;
                             flag.vx = 0;
-                            flag.vy = 4; // সোজা নিচের গ্যাপ দিয়ে বেরিয়ে যাবে
+                            flag.vy = 5;
                             qualifyFlag(flag);
                             continue;
                         }
                     }
 
-                    // সাধারণ দেওয়ালের বাউন্স
                     const dot = flag.vx * nx + flag.vy * ny;
                     flag.vx = (flag.vx - 2 * dot * nx) * 0.8;
                     flag.vy = (flag.vy - 2 * dot * ny) * 0.8;
@@ -298,10 +265,11 @@
                 qualifiedFlags.push({ name: flag.name, emoji: flag.emoji });
                 updateQualifyUI();
 
+                // ৫ জন উইনার বক্সে চলে আসলে ম্যাচ শেষ এবং ৩ সেকেন্ড পর নতুন রাউন্ড শুরু
                 if (qualifiedFlags.length === 5) {
                     isMatchOver = true;
                     headerTitle.innerText = "🏆 WINNERS QUALIFIED 🏆";
-                    setTimeout(initGame, 3000); // ৩ সেকেন্ড পর অটো প্লে
+                    setTimeout(initGame, 3000);
                 }
             }
         }
