@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flags Battle Royale - Rotating Arena</title>
+    <title>Flags Battle Royale - Final</title>
     <style>
         * {
             box-sizing: border-box;
@@ -24,7 +24,7 @@
             padding: 10px;
         }
 
-        /* Top Header Box */
+        /* Top Header Box (Winner Box) */
         .top-header {
             background: #0a1930;
             border: 2px solid #1a3a6b;
@@ -42,20 +42,15 @@
             margin-bottom: 6px;
             text-transform: uppercase;
         }
-        .qualify-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
         .qualify-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: #112240;
-            padding: 5px 10px;
+            padding: 6px 10px;
             border-radius: 4px;
-            font-size: 13px;
-            border-left: 3px solid #00d2ff;
+            font-size: 14px;
+            border-left: 3px solid #ffd700;
         }
         .qualify-row span {
             display: flex;
@@ -63,13 +58,13 @@
             gap: 8px;
         }
 
-        /* Main Arena Container (এখানে বৃত্ত ঘুরবে) */
+        /* Main Arena Container */
         .arena-container {
             position: relative;
             width: 320px;
             height: 320px;
             margin-top: 10px;
-            animation: rotateArena 15s linear infinite; /* পুরো বৃত্তটি ঘুরবে */
+            animation: rotateArena 20s linear infinite;
         }
 
         @keyframes rotateArena {
@@ -89,13 +84,13 @@
             overflow: visible;
         }
 
-        /* The Gap (বৃত্তের নিচের ফাঁক বা গেট) */
+        /* The Gap (গেটের ফাঁক) */
         .gap {
             position: absolute;
             bottom: -7px;
             left: 50%;
             transform: translateX(-50%);
-            width: 55px;
+            width: 50px;
             height: 8px;
             background-color: #050b15;
             z-index: 5;
@@ -103,16 +98,29 @@
             border-radius: 4px;
         }
 
-        /* Flag Elements */
+        /* Flag Container with Name */
         .flag-item {
             position: absolute;
-            width: 28px;
-            height: 20px;
-            font-size: 18px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            will-change: transform, left, top;
+            width: 40px;
+            height: 35px;
+            will-change: left, top;
+        }
+        .flag-emoji {
+            font-size: 20px;
+        }
+        .flag-name {
+            font-size: 8px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 1px 3px;
+            border-radius: 3px;
+            white-space: nowrap;
+            margin-top: 1px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -120,8 +128,12 @@
 
     <!-- Top Header Box -->
     <div class="top-header">
-        <div class="header-title" id="headerTitle">🏁 QUALIFYING (5 QUALIFIED) 🏁</div>
-        <div class="qualify-list" id="qualifyList"></div>
+        <div class="header-title" id="headerTitle">🏁 FINAL BATTLE (LAST 1 WIN) 🏁</div>
+        <div id="winnerBox">
+            <div class="qualify-row">
+                <span>#1 ---</span> <span style="color:#555;">Battling...</span>
+            </div>
+        </div>
     </div>
 
     <!-- Arena Container -->
@@ -133,55 +145,45 @@
 
     <script>
         const flagsData = [
-            { name: "Afghanistan", emoji: "🇦🇫" }, { name: "Albania", emoji: "🇦🇱" }, { name: "Algeria", emoji: "🇩🇿" },
-            { name: "Argentina", emoji: "🇦🇷" }, { name: "Australia", emoji: "🇦🇺" }, { name: "Austria", emoji: "🇦🇹" },
-            { name: "Bangladesh", emoji: "🇧🇩" }, { name: "Belgium", emoji: "🇧🇪" }, { name: "Brazil", emoji: "🇧🇷" },
-            { name: "Canada", emoji: "🇨🇦" }, { name: "China", emoji: "🇨🇳" }, { name: "Colombia", emoji: "🇨🇴" },
-            { name: "Denmark", emoji: "🇩🇰" }, { name: "Egypt", emoji: "🇪🇬" }, { name: "France", emoji: "🇫🇷" },
-            { name: "Germany", emoji: "🇩🇪" }, { name: "Greece", emoji: "🇬🇷" }, { name: "India", emoji: "🇮🇳" },
-            { name: "Indonesia", emoji: "🇮🇩" }, { name: "Italy", emoji: "🇮🇹" }, { name: "Japan", emoji: "🇯🇵" },
-            { name: "Malaysia", emoji: "🇲🇾" }, { name: "Mexico", emoji: "🇲🇽" }, { name: "Morocco", emoji: "🇲🇦" },
-            { name: "Netherlands", emoji: "🇳🇱" }, { name: "New Zealand", emoji: "🇳🇿" }, { name: "Nigeria", emoji: "🇳🇬" },
-            { name: "Norway", emoji: "🇳🇴" }, { name: "Pakistan", emoji: "🇵🇰" }, { name: "Philippines", emoji: "🇵🇭" },
-            { name: "Poland", emoji: "🇵🇱" }, { name: "Portugal", emoji: "🇵🇹" }, { name: "Russia", emoji: "🇷🇺" },
-            { name: "Saudi Arabia", emoji: "🇸🇦" }, { name: "South Africa", emoji: "🇿🇦" }, { name: "South Korea", emoji: "🇰🇷" },
-            { name: "Spain", emoji: "🇪🇸" }, { name: "Sweden", emoji: "🇸🇪" }, { name: "Switzerland", emoji: "🇨🇭" },
-            { name: "Turkey", emoji: "🇹🇷" }, { name: "Ukraine", emoji: "🇺🇦" }, { name: "UK", emoji: "🇬🇧" },
-            { name: "USA", emoji: "🇺🇸" }, { name: "Vietnam", emoji: "🇻🇳" }
+            { name: "Bangladesh", emoji: "🇧🇩" }, { name: "India", emoji: "🇮🇳" }, { name: "USA", emoji: "🇺🇸" },
+            { name: "UK", emoji: "🇬🇧" }, { name: "Japan", emoji: "🇯🇵" }, { name: "Brazil", emoji: "🇧🇷" },
+            { name: "Germany", emoji: "🇩🇪" }, { name: "France", emoji: "🇫🇷" }, { name: "Canada", emoji: "🇨🇦" },
+            { name: "Australia", emoji: "🇦🇺" }, { name: "Russia", emoji: "🇷🇺" }, { name: "China", emoji: "🇨🇳" },
+            { name: "Argentina", emoji: "🇦🇷" }, { name: "South Korea", emoji: "🇰🇷" }, { name: "Spain", emoji: "🇪🇸" },
+            { name: "Italy", emoji: "🇮🇹" }, { name: "Saudi Arabia", emoji: "🇸🇦" }, { name: "Turkey", emoji: "🇹🇷" },
+            { name: "Mexico", emoji: "🇲🇽" }, { name: "Indonesia", emoji: "🇮🇩" }, { name: "Pakistan", emoji: "🇵🇰" }
         ];
 
         const arena = document.getElementById('arena');
-        const qualifyListEl = document.getElementById('qualifyList');
+        const winnerBox = document.getElementById('winnerBox');
         const headerTitle = document.getElementById('headerTitle');
 
         const ARENA_SIZE = 320;
         const RADIUS = ARENA_SIZE / 2;
-        const FLAG_SIZE = 28;
 
         let activeFlags = [];
-        let qualifiedFlags = [];
         let physicsInterval;
         let isMatchOver = false;
 
         function initGame() {
             arena.innerHTML = '<div class="gap"></div>';
             activeFlags = [];
-            qualifiedFlags = [];
             isMatchOver = false;
-            headerTitle.innerText = "🏁 QUALIFYING (5 QUALIFIED) 🏁";
+            headerTitle.innerText = "🏁 FINAL BATTLE (LAST 1 WIN) 🏁";
+            winnerBox.innerHTML = `<div class="qualify-row"><span>#1 ---</span> <span style="color:#555;">Battling...</span></div>`;
 
             const shuffled = [...flagsData].sort(() => 0.5 - Math.random());
-            const selectedFlags = shuffled.slice(0, 25);
+            const selectedFlags = shuffled.slice(0, 20); // ২০টি পতাকা দিয়ে খেলা শুরু
 
             selectedFlags.forEach((data) => {
                 const el = document.createElement('div');
                 el.className = 'flag-item';
-                el.innerText = data.emoji;
+                el.innerHTML = `<span class="flag-emoji">${data.emoji}</span><span class="flag-name">${data.name}</span>`;
                 
                 const angle = Math.random() * Math.PI * 2;
                 const dist = Math.random() * (RADIUS - 50);
-                const x = RADIUS - (FLAG_SIZE/2) + (dist * Math.cos(angle));
-                const y = RADIUS - (FLAG_SIZE/2) + (dist * Math.sin(angle));
+                const x = RADIUS - 20 + (dist * Math.cos(angle));
+                const y = RADIUS - 17 + (dist * Math.sin(angle));
 
                 el.style.left = `${x}px`;
                 el.style.top = `${y}px`;
@@ -200,14 +202,26 @@
                 });
             });
 
-            updateQualifyUI();
-
             clearInterval(physicsInterval);
             physicsInterval = setInterval(updatePhysics, 1000 / 60);
         }
 
         function updatePhysics() {
             if (isMatchOver) return;
+
+            // যদি মাত্র ১টি পতাকা বেঁচে থাকে, সে উইনার!
+            if (activeFlags.length === 1 && !activeFlags[0].isExiting) {
+                let winner = activeFlags[0];
+                isMatchOver = true;
+                headerTitle.innerText = "🏆 WINNER 🏆";
+                winnerBox.innerHTML = `
+                    <div class="qualify-row" style="border-left-color: #00d2ff;">
+                        <span>#1 ${winner.emoji} ${winner.name}</span> <span style="color:#00d2ff; font-weight:bold;">WINNER!</span>
+                    </div>
+                `;
+                setTimeout(initGame, 4000); // ৪ সেকেন্ড পর নতুন ম্যাচ শুরু হবে
+                return;
+            }
 
             for (let i = activeFlags.length - 1; i >= 0; i--) {
                 let flag = activeFlags[i];
@@ -224,68 +238,40 @@
                     continue;
                 }
 
+                // এদিক-সেদিক ছোটাছুটি করার জন্য সামান্য রেন্ডম ফোর্স
+                flag.vx += (Math.random() - 0.5) * 0.6;
+                flag.vy += (Math.random() - 0.5) * 0.6;
+
                 flag.x += flag.vx;
                 flag.y += flag.vy;
 
-                const dx = flag.x + (FLAG_SIZE/2) - RADIUS;
-                const dy = flag.y + (FLAG_SIZE/2) - RADIUS;
+                const dx = flag.x + 20 - RADIUS;
+                const dy = flag.y + 17 - RADIUS;
                 const dist = Math.sqrt(dx*dx + dy*dy);
 
-                if (dist + (FLAG_SIZE/2) >= RADIUS - 4) {
+                if (dist + 18 >= RADIUS - 4) {
                     const nx = dx / dist;
                     const ny = dy / dist;
 
-                    // গ্যাপ বা ফাঁক দিয়ে বের হওয়ার লজিক (নিচের অংশ)
-                    if (Math.abs(dx) < 28 && dy > RADIUS - 45) {
-                        if (qualifiedFlags.length < 5) {
-                            flag.isExiting = true;
-                            flag.vx = 0;
-                            flag.vy = 5;
-                            qualifyFlag(flag);
-                            continue;
-                        }
+                    // গ্যাপ দিয়ে পতাকা বাইরে বের হয়ে যাওয়ার শর্ত (শেষের দিকে পতাকা কমালে এটি কাজ করবে)
+                    if (Math.abs(dx) < 22 && dy > RADIUS - 40 && activeFlags.length > 1) {
+                        flag.isExiting = true;
+                        flag.vx = 0;
+                        flag.vy = 5;
+                        continue;
                     }
 
                     const dot = flag.vx * nx + flag.vy * ny;
-                    flag.vx = (flag.vx - 2 * dot * nx) * 0.8;
-                    flag.vy = (flag.vy - 2 * dot * ny) * 0.8;
+                    flag.vx = (flag.vx - 2 * dot * nx) * 0.85;
+                    flag.vy = (flag.vy - 2 * dot * ny) * 0.85;
 
-                    const overlap = (dist + FLAG_SIZE/2) - (RADIUS - 4);
+                    const overlap = (dist + 18) - (RADIUS - 4);
                     flag.x -= nx * overlap;
                     flag.y -= ny * overlap;
                 }
 
                 flag.element.style.left = `${flag.x}px`;
                 flag.element.style.top = `${flag.y}px`;
-            }
-        }
-
-        function qualifyFlag(flag) {
-            if (!qualifiedFlags.some(f => f.name === flag.name)) {
-                qualifiedFlags.push({ name: flag.name, emoji: flag.emoji });
-                updateQualifyUI();
-
-                // ৫ জন উইনার বক্সে চলে আসলে ম্যাচ শেষ এবং ৩ সেকেন্ড পর নতুন রাউন্ড শুরু
-                if (qualifiedFlags.length === 5) {
-                    isMatchOver = true;
-                    headerTitle.innerText = "🏆 WINNERS QUALIFIED 🏆";
-                    setTimeout(initGame, 3000);
-                }
-            }
-        }
-
-        function updateQualifyUI() {
-            qualifyListEl.innerHTML = '';
-            for (let i = 0; i < 5; i++) {
-                let f = qualifiedFlags[i];
-                let row = document.createElement('div');
-                row.className = 'qualify-row';
-                if (f) {
-                    row.innerHTML = `<span>#${i+1} ${f.emoji} ${f.name}</span> <span style="color:#00d2ff;">Qualified</span>`;
-                } else {
-                    row.innerHTML = `<span>#${i+1} ---</span> <span style="color:#555;">Waiting...</span>`;
-                }
-                qualifyListEl.appendChild(row);
             }
         }
 
